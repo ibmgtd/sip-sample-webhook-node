@@ -6,8 +6,19 @@
 
 var app = require('../app');
 var debug = require('debug')('sip-sample-webhook-node:server');
-var http = require('http');
+var https = require('https');
+var fs = require('fs');
 const config = require('../config/env')
+
+
+/**
+ * Set up the credentials.  Point to your .pem files.
+ */
+
+var privateKey  = fs.readFileSync(config.certificateDirectory + 'privkey.pem')
+var certificate = fs.readFileSync(config.certificateDirectory + 'cert.pem')
+var ca = fs.readFileSync(config.certificateDirectory + 'fullchain.pem')
+var credentials = {key: privateKey, cert: certificate, ca: ca};
 
 /**
  * Get port from environment and store in Express.
@@ -20,7 +31,7 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+var server = https.createServer(credentials, app);
 
 /**
  * Listen on provided port, on all network interfaces.
